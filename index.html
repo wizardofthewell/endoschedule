@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>St. Clare's Endo Schedule</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -34,20 +37,22 @@
                 <h2>Configuration</h2>
                 
                 <div class="config-section">
-                    <h3>Employees</h3>
-                    <div id="employeeList"></div>
+                    <h3>Time Slots</h3>
+                    <p class="help-text">Add time slots first, then assign them to employees below</p>
+                    <div id="timeslotList"></div>
                     <div class="add-row">
-                        <input type="text" id="newEmployee" placeholder="Employee name">
-                        <button id="addEmployee" class="btn btn-small">+ Add</button>
+                        <input type="text" id="newTimeslot" placeholder="e.g., 9:00 AM - 5:00 PM" maxlength="50">
+                        <button id="addTimeslot" class="btn btn-small">+ Add</button>
                     </div>
                 </div>
 
                 <div class="config-section">
-                    <h3>Time Slots</h3>
-                    <div id="timeslotList"></div>
+                    <h3>Employees &amp; Initial Assignments</h3>
+                    <p class="help-text">Add employees, then use the dropdown next to each name to select their <strong>Week 1 starting shift</strong>. They will rotate through all slots from there.</p>
+                    <div id="employeeList"></div>
                     <div class="add-row">
-                        <input type="text" id="newTimeslot" placeholder="e.g., 9:00 AM - 5:00 PM">
-                        <button id="addTimeslot" class="btn btn-small">+ Add</button>
+                        <input type="text" id="newEmployee" placeholder="Employee name" maxlength="50">
+                        <button id="addEmployee" class="btn btn-small">+ Add</button>
                     </div>
                 </div>
 
@@ -60,7 +65,11 @@
                     </div>
                 </div>
 
-                <button id="saveConfig" class="btn btn-primary">Save & Generate Schedule</button>
+                <div class="config-buttons">
+                    <button id="saveConfig" class="btn btn-primary">Save & Generate Schedule</button>
+                    <button id="resetConfig" class="btn btn-secondary">Reset to Defaults</button>
+                    <button id="clearData" class="btn btn-danger">Clear All Data</button>
+                </div>
             </div>
         </div>
 

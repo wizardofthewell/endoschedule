@@ -1,6 +1,24 @@
+// Security: HTML sanitization to prevent XSS
+function sanitizeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Security: Validate input - only allow safe characters
+function sanitizeInput(str) {
+    if (typeof str !== 'string') return '';
+    // Remove any HTML tags and limit to safe characters
+    return str.replace(/<[^>]*>/g, '').substring(0, 50);
+}
+
 // Default configuration
 const defaultConfig = {
-    employees: ['Employee 1', 'Employee 2', 'Employee 3'],
+    employees: [
+        { name: 'Employee 1', initialSlot: 0 },
+        { name: 'Employee 2', initialSlot: 1 },
+        { name: 'Employee 3', initialSlot: 2 }
+    ],
     timeslots: [
         '9:00 AM - 5:00 PM',
         '9:30 AM - 5:30 PM',
@@ -12,7 +30,19 @@ const defaultConfig = {
 // Load config from localStorage or use defaults
 function loadConfig() {
     const saved = localStorage.getItem('endoScheduleConfig');
-    return saved ? JSON.parse(saved) : { ...defaultConfig };
+    if (saved) {
+        const config = JSON.parse(saved);
+        // Migrate old format (array of strings) to new format (array of objects)
+        if (config.employees && config.employees.length > 0 && typeof config.employees[0] === 'string') {
+            config.employees = config.employees.map((name, index) => ({
+                name: name,
+                initialSlot: index % (config.timeslots?.length || 1)
+            }));
+            saveConfig(config);
+        }
+        return config;
+    }
+    return JSON.parse(JSON.stringify(defaultConfig));
 }
 
 // Save config to localStorage
@@ -114,12 +144,13 @@ function generateSchedule(year) {
         
         // Assign each employee to a timeslot
         for (let i = 0; i < numEmployees; i++) {
-            // Calculate which timeslot this employee gets this week
-            // They rotate through timeslots as weeks progress
-            const timeslotIndex = ((i + rotationWeek) % numTimeslots + numTimeslots) % numTimeslots;
+            const employee = config.employees[i];
+            // Start from their initial slot and rotate from there
+            const initialSlot = employee.initialSlot || 0;
+            const timeslotIndex = ((initialSlot + rotationWeek) % numTimeslots + numTimeslots) % numTimeslots;
             
             weekSchedule.assignments.push({
-                employee: config.employees[i],
+                employee: employee.name,
                 timeslot: config.timeslots[timeslotIndex]
             });
         }
@@ -146,7 +177,7 @@ function renderSchedule() {
         const currentWeekData = schedule.find(w => w.week === currentWeek);
         if (currentWeekData) {
             const currentAssignments = currentWeekData.assignments
-                .map(a => `<strong>${a.employee}</strong>: ${a.timeslot}`)
+                .map(a => `<strong>${sanitizeHTML(a.employee)}</strong>: ${sanitizeHTML(a.timeslot)}`)
                 .join(' | ');
             currentWeekBanner.innerHTML = `📅 Current Week (${currentWeek}): ${currentAssignments}`;
             currentWeekBanner.style.display = 'block';
@@ -167,8 +198,8 @@ function renderSchedule() {
         
         const assignments = weekData.assignments.map(a => `
             <div class="schedule-row">
-                <span class="employee-name">${a.employee}</span>
-                <span class="time-slot">${a.timeslot}</span>
+                <span class="employee-name">${sanitizeHTML(a.employee)}</span>
+                <span class="time-slot">${sanitizeHTML(a.timeslot)}</span>
             </div>
         `).join('');
         
@@ -215,21 +246,43 @@ function updateWeekFilter(schedule) {
 
 // Render config lists
 function renderConfigLists() {
-    // Render employees
-    employeeList.innerHTML = config.employees.map((emp, index) => `
-        <div class="config-item">
-            <span>${emp}</span>
-            <button class="btn btn-danger" onclick="removeEmployee(${index})">Remove</button>
-        </div>
-    `).join('');
-    
-    // Render timeslots
+    // Render timeslots first (sanitized)
     timeslotList.innerHTML = config.timeslots.map((slot, index) => `
         <div class="config-item">
-            <span>${slot}</span>
+            <span>${sanitizeHTML(slot)}</span>
             <button class="btn btn-danger" onclick="removeTimeslot(${index})">Remove</button>
         </div>
     `).join('');
+    
+    // Render employees with initial slot dropdown (sanitized)
+    employeeList.innerHTML = config.employees.map((emp, index) => {
+        const slotOptions = config.timeslots.length > 0 
+            ? config.timeslots.map((slot, slotIndex) => 
+                `<option value="${slotIndex}" ${emp.initialSlot === slotIndex ? 'selected' : ''}>${sanitizeHTML(slot)}</option>`
+              ).join('')
+            : '<option value="0">Add time slots first</option>';
+        
+        return `
+            <div class="config-item employee-config">
+                <span class="employee-name-config">${sanitizeHTML(emp.name)}</span>
+                <div class="employee-controls">
+                    <label class="slot-label">Week 1 Shift:</label>
+                    <select class="initial-slot-select" onchange="updateInitialSlot(${index}, this.value)" ${config.timeslots.length === 0 ? 'disabled' : ''}>
+                        ${slotOptions}
+                    </select>
+                    <button class="btn btn-danger" onclick="removeEmployee(${index})">Remove</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    if (config.employees.length === 0) {
+        employeeList.innerHTML = '<p class="help-text">No employees added yet. Add employees to assign their starting shifts.</p>';
+    }
+    
+    if (config.timeslots.length === 0) {
+        timeslotList.innerHTML = '<p class="help-text">No time slots added yet. Add time slots first!</p>';
+    }
     
     // Set start week
     startWeekInput.value = config.startWeek;
@@ -237,9 +290,18 @@ function renderConfigLists() {
 
 // Add employee
 function addEmployee() {
-    const name = newEmployeeInput.value.trim();
-    if (name && !config.employees.includes(name)) {
-        config.employees.push(name);
+    const name = sanitizeInput(newEmployeeInput.value.trim());
+    if (name && !config.employees.some(e => e.name === name)) {
+        // Default to next available slot, or 0 if none available
+        const usedSlots = config.employees.map(e => e.initialSlot);
+        let initialSlot = 0;
+        for (let i = 0; i < config.timeslots.length; i++) {
+            if (!usedSlots.includes(i)) {
+                initialSlot = i;
+                break;
+            }
+        }
+        config.employees.push({ name: name, initialSlot: initialSlot });
         newEmployeeInput.value = '';
         renderConfigLists();
     }
@@ -251,9 +313,14 @@ window.removeEmployee = function(index) {
     renderConfigLists();
 };
 
+// Update initial slot assignment
+window.updateInitialSlot = function(employeeIndex, slotIndex) {
+    config.employees[employeeIndex].initialSlot = parseInt(slotIndex);
+};
+
 // Add timeslot
 function addTimeslot() {
-    const slot = newTimeslotInput.value.trim();
+    const slot = sanitizeInput(newTimeslotInput.value.trim());
     if (slot && !config.timeslots.includes(slot)) {
         config.timeslots.push(slot);
         newTimeslotInput.value = '';
@@ -305,6 +372,26 @@ newTimeslotInput.addEventListener('keypress', (e) => {
 });
 
 saveConfigBtn.addEventListener('click', handleSaveConfig);
+
+// Reset to defaults
+document.getElementById('resetConfig').addEventListener('click', () => {
+    if (confirm('Reset all settings to defaults? This will clear your custom employees and time slots.')) {
+        config = JSON.parse(JSON.stringify(defaultConfig));
+        saveConfig(config);
+        renderConfigLists();
+    }
+});
+
+// Clear all data
+document.getElementById('clearData').addEventListener('click', () => {
+    if (confirm('Clear ALL stored data? This cannot be undone.')) {
+        localStorage.removeItem('endoScheduleConfig');
+        config = JSON.parse(JSON.stringify(defaultConfig));
+        renderConfigLists();
+        configModal.style.display = 'none';
+        renderSchedule();
+    }
+});
 
 // Initialize
 initYearSelector();
