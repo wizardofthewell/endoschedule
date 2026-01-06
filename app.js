@@ -263,8 +263,14 @@ function renderConfigLists() {
             : '<option value="0">Add time slots first</option>';
         
         return `
-            <div class="config-item employee-config">
-                <span class="employee-name-config">${sanitizeHTML(emp.name)}</span>
+            <div class="config-item employee-config" id="employee-row-${index}">
+                <div class="employee-name-section">
+                    <span class="employee-name-config" id="emp-name-${index}">${sanitizeHTML(emp.name)}</span>
+                    <input type="text" class="employee-name-input" id="emp-input-${index}" value="${sanitizeHTML(emp.name)}" maxlength="50" style="display:none;">
+                    <button class="btn btn-edit" id="emp-edit-btn-${index}" onclick="editEmployeeName(${index})" title="Edit name">✏️</button>
+                    <button class="btn btn-save" id="emp-save-btn-${index}" onclick="saveEmployeeName(${index})" style="display:none;" title="Save">✓</button>
+                    <button class="btn btn-cancel" id="emp-cancel-btn-${index}" onclick="cancelEditEmployee(${index})" style="display:none;" title="Cancel">✕</button>
+                </div>
                 <div class="employee-controls">
                     <label class="slot-label">Week 1 Shift:</label>
                     <select class="initial-slot-select" onchange="updateInitialSlot(${index}, this.value)" ${config.timeslots.length === 0 ? 'disabled' : ''}>
@@ -311,6 +317,48 @@ function addEmployee() {
 window.removeEmployee = function(index) {
     config.employees.splice(index, 1);
     renderConfigLists();
+};
+
+// Edit employee name - show input field
+window.editEmployeeName = function(index) {
+    document.getElementById(`emp-name-${index}`).style.display = 'none';
+    document.getElementById(`emp-edit-btn-${index}`).style.display = 'none';
+    document.getElementById(`emp-input-${index}`).style.display = 'inline-block';
+    document.getElementById(`emp-save-btn-${index}`).style.display = 'inline-block';
+    document.getElementById(`emp-cancel-btn-${index}`).style.display = 'inline-block';
+    document.getElementById(`emp-input-${index}`).focus();
+    document.getElementById(`emp-input-${index}`).select();
+};
+
+// Save edited employee name
+window.saveEmployeeName = function(index) {
+    const input = document.getElementById(`emp-input-${index}`);
+    const newName = sanitizeInput(input.value.trim());
+    
+    if (!newName) {
+        alert('Employee name cannot be empty.');
+        return;
+    }
+    
+    // Check for duplicate names (excluding current employee)
+    const isDuplicate = config.employees.some((e, i) => i !== index && e.name === newName);
+    if (isDuplicate) {
+        alert('An employee with this name already exists.');
+        return;
+    }
+    
+    config.employees[index].name = newName;
+    renderConfigLists();
+};
+
+// Cancel editing employee name
+window.cancelEditEmployee = function(index) {
+    document.getElementById(`emp-input-${index}`).value = config.employees[index].name;
+    document.getElementById(`emp-name-${index}`).style.display = 'inline';
+    document.getElementById(`emp-edit-btn-${index}`).style.display = 'inline-block';
+    document.getElementById(`emp-input-${index}`).style.display = 'none';
+    document.getElementById(`emp-save-btn-${index}`).style.display = 'none';
+    document.getElementById(`emp-cancel-btn-${index}`).style.display = 'none';
 };
 
 // Update initial slot assignment
