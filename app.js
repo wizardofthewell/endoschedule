@@ -444,3 +444,170 @@ document.getElementById('clearData').addEventListener('click', () => {
 // Initialize
 initYearSelector();
 renderSchedule();
+
+// Export buttons
+const exportExcelBtn = document.getElementById('exportExcel');
+const exportPdfBtn = document.getElementById('exportPdf');
+const printBtn = document.getElementById('printBtn');
+
+// Export to Excel
+exportExcelBtn.addEventListener('click', () => {
+    const year = parseInt(yearSelect.value);
+    const schedule = generateSchedule(year);
+    const filterWeek = weekFilter.value;
+    
+    const filteredSchedule = filterWeek 
+        ? schedule.filter(w => w.week === parseInt(filterWeek))
+        : schedule;
+    
+    // Create workbook data
+    const wsData = [['Week', 'Date Range', ...config.employees.map(e => e.name)]];
+    
+    filteredSchedule.forEach(weekData => {
+        const dateRange = `${formatDate(weekData.dates.start)} - ${formatDate(weekData.dates.end)}`;
+        const row = [
+            `Week ${weekData.week}`,
+            dateRange,
+            ...weekData.assignments.map(a => a.timeslot)
+        ];
+        wsData.push(row);
+    });
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_array ? XLSX.utils.aoa_to_sheet(wsData) : XLSX.utils.aoa_to_sheet(wsData);
+    
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 10 },  // Week
+        { wch: 20 },  // Date Range
+        ...config.employees.map(() => ({ wch: 20 }))  // Employee columns
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, 'Schedule');
+    
+    // Generate filename
+    const filename = filterWeek 
+        ? `StClares_Endo_Schedule_${year}_Week${filterWeek}.xlsx`
+        : `StClares_Endo_Schedule_${year}.xlsx`;
+    
+    // Download file
+    XLSX.writeFile(wb, filename);
+});
+
+// Export to PDF
+exportPdfBtn.addEventListener('click', () => {
+    const year = parseInt(yearSelect.value);
+    const schedule = generateSchedule(year);
+    const filterWeek = weekFilter.value;
+    
+    const filteredSchedule = filterWeek 
+        ? schedule.filter(w => w.week === parseInt(filterWeek))
+        : schedule;
+    
+    // Create a new window for PDF
+    const printWindow = window.open('', '_blank');
+    
+    // Build table HTML
+    let tableRows = '';
+    filteredSchedule.forEach(weekData => {
+        const dateRange = `${formatDate(weekData.dates.start)} - ${formatDate(weekData.dates.end)}`;
+        tableRows += `
+            <tr>
+                <td><strong>Week ${weekData.week}</strong></td>
+                <td>${dateRange}</td>
+                ${weekData.assignments.map(a => `<td>${sanitizeHTML(a.employee)}: ${sanitizeHTML(a.timeslot)}</td>`).join('')}
+            </tr>
+        `;
+    });
+    
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>St. Clare's Endo Schedule - ${year}</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    padding: 20px;
+                    max-width: 100%;
+                }
+                h1 {
+                    color: #667eea;
+                    text-align: center;
+                    margin-bottom: 5px;
+                }
+                h2 {
+                    color: #666;
+                    text-align: center;
+                    font-weight: normal;
+                    margin-bottom: 20px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 10px;
+                    text-align: left;
+                }
+                th {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                tr:hover {
+                    background-color: #f0f0f0;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 30px;
+                    color: #666;
+                    font-size: 0.9rem;
+                }
+                @media print {
+                    body { padding: 0; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>🏥 St. Clare's Endo Schedule</h1>
+            <h2>${filterWeek ? `Week ${filterWeek} - ` : ''}${year}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Week</th>
+                        <th>Date Range</th>
+                        ${config.employees.map(e => `<th>${sanitizeHTML(e.name)}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+            <div class="footer">
+                <p>Generated on ${new Date().toLocaleDateString()}</p>
+                <p>Made with ❤️ for Mudder</p>
+            </div>
+            <div class="no-print" style="text-align: center; margin-top: 20px;">
+                <button onclick="window.print()" style="padding: 10px 30px; font-size: 1rem; cursor: pointer; background: #667eea; color: white; border: none; border-radius: 5px;">
+                    🖨️ Print / Save as PDF
+                </button>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+});
+
+// Print current view
+printBtn.addEventListener('click', () => {
+    window.print();
+});
