@@ -960,13 +960,13 @@ function groupScheduleByMonth(schedule, year) {
         months.get(monthIndex).push(weekData);
     });
     
-    // Sort by month index and sort weeks within each month
+    // Sort by month index and sort weeks within each month by start date
     const sortedMonths = [];
     for (let i = 0; i < 12; i++) {
         if (months.has(i)) {
             const weeks = months.get(i);
-            // Sort weeks by week number
-            weeks.sort((a, b) => a.week - b.week);
+            // Sort weeks by actual start date (not week number)
+            weeks.sort((a, b) => a.dates.start.getTime() - b.dates.start.getTime());
             sortedMonths.push({ monthIndex: i, monthName: monthNames[i], weeks });
         }
     }
