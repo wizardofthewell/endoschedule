@@ -953,25 +953,34 @@ function groupScheduleByMonth(schedule, year) {
     const months = new Map();
     
     schedule.forEach(weekData => {
-        const monthIndex = weekData.dates.start.getMonth();
-        if (!months.has(monthIndex)) {
-            months.set(monthIndex, []);
+        const startDate = weekData.dates.start;
+        const startYear = startDate.getFullYear();
+        const monthIndex = startDate.getMonth();
+        
+        // Create a key that includes year to keep Dec 2025 separate from Dec 2026
+        const key = `${startYear}-${monthIndex}`;
+        if (!months.has(key)) {
+            months.set(key, { year: startYear, monthIndex, weeks: [] });
         }
-        months.get(monthIndex).push(weekData);
+        months.get(key).weeks.push(weekData);
     });
     
-    // Sort by month index and sort weeks within each month by start date
-    const sortedMonths = [];
-    for (let i = 0; i < 12; i++) {
-        if (months.has(i)) {
-            const weeks = months.get(i);
-            // Sort weeks by actual start date (not week number)
-            weeks.sort((a, b) => a.dates.start.getTime() - b.dates.start.getTime());
-            sortedMonths.push({ monthIndex: i, monthName: monthNames[i], weeks });
-        }
-    }
+    // Convert to array and sort by year then month
+    const sortedMonths = Array.from(months.values())
+        .sort((a, b) => {
+            if (a.year !== b.year) return a.year - b.year;
+            return a.monthIndex - b.monthIndex;
+        });
     
-    return sortedMonths;
+    // Sort weeks within each month by start date and format output
+    return sortedMonths.map(({ year: y, monthIndex, weeks }) => {
+        weeks.sort((a, b) => a.dates.start.getTime() - b.dates.start.getTime());
+        // Show year in month name if it's different from selected year
+        const monthName = y !== year 
+            ? `${monthNames[monthIndex]} ${y}` 
+            : monthNames[monthIndex];
+        return { monthIndex, monthName, weeks };
+    });
 }
 
 // Export to PDF / Print view - Compact Monthly Format
