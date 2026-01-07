@@ -30,6 +30,7 @@
                 </select>
             </div>
             <button id="configBtn" class="btn btn-secondary">⚙️ Configure</button>
+            <button id="tutorialBtn" class="btn btn-tutorial">❓ Help</button>
             <div class="export-buttons">
                 <button id="exportExcel" class="btn btn-export">📊 Export Excel</button>
                 <button id="exportPdf" class="btn btn-export">📄 Export PDF</button>
@@ -45,7 +46,7 @@
                 
                 <div class="config-section">
                     <h3>Time Slots</h3>
-                    <p class="help-text">Add time slots first, then assign them to employees below</p>
+                    <p class="help-text">Add time slots and optional notes (e.g., "Weekend on-call"). Notes will display on weeks when that slot is assigned.</p>
                     <div id="timeslotList"></div>
                     <div class="add-row">
                         <input type="text" id="newTimeslot" placeholder="e.g., 9:00 AM - 5:00 PM" maxlength="50">
@@ -72,10 +73,224 @@
                     </div>
                 </div>
 
+                <div class="config-section">
+                    <h3>📞 On-Call Rotation</h3>
+                    <p class="help-text">Set who is on-call during Week 1 and drag to reorder the rotation sequence.</p>
+                    <div class="on-call-config">
+                        <label for="onCallStart">On-Call Week 1:</label>
+                        <select id="onCallStart"></select>
+                    </div>
+                    <p class="help-text" style="margin-top: 10px;">On-Call Order (drag to reorder):</p>
+                    <div id="onCallOrderList" class="on-call-order-list"></div>
+                </div>
+
                 <div class="config-buttons">
                     <button id="saveConfig" class="btn btn-primary">Save & Generate Schedule</button>
                     <button id="resetConfig" class="btn btn-secondary">Reset to Defaults</button>
                     <button id="clearData" class="btn btn-danger">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutorial Modal -->
+        <div id="tutorialModal" class="modal">
+            <div class="modal-content tutorial-modal">
+                <span class="close" id="closeTutorial">&times;</span>
+                <h2>📖 How to Use This App</h2>
+                
+                <div class="tutorial-section">
+                    <div class="tutorial-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>👀 View the Schedule</h3>
+                            <p>The main page shows <strong>weekly shift assignments</strong> for all employees. Each card shows:</p>
+                            <ul>
+                                <li>Week number and date range</li>
+                                <li>📞 <strong>On-Call</strong> person for that week (red badge)</li>
+                                <li>Each employee's assigned time slot</li>
+                            </ul>
+                            <p class="tip">💡 The <strong>current week</strong> is highlighted in green and shown in a banner at the top!</p>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>📅 Navigate by Year & Week</h3>
+                            <p><strong>Select Year:</strong> Choose which year's schedule to view.</p>
+                            <p><strong>Jump to Week:</strong> Quickly jump to a specific week, or select "All Weeks" to see the entire year.</p>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>⚙️ Configure Employees & Time Slots</h3>
+                            <p>Click the <strong>⚙️ Configure</strong> button to set up your schedule:</p>
+                            
+                            <div class="tutorial-subsection">
+                                <h4>📍 Step A: Add Time Slots</h4>
+                                <p>First, add all the shift times your team uses:</p>
+                                <ul>
+                                    <li>Type a time range like <strong>"7:30 AM - 3:30 PM"</strong></li>
+                                    <li>Click <strong>+ Add</strong> to add it</li>
+                                    <li>Optionally add a <strong>note</strong> to any slot (e.g., "Weekend on-call")</li>
+                                    <li>Notes show up on weeks when that shift is assigned</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="tutorial-subsection">
+                                <h4>👤 Step B: Add Employees</h4>
+                                <p>Next, add your team members:</p>
+                                <ul>
+                                    <li>Type the employee's name</li>
+                                    <li>Click <strong>+ Add</strong></li>
+                                    <li>Use the <strong>✏️</strong> button to edit names later</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="tutorial-subsection">
+                                <h4>🔄 Step C: Assign Week 1 Shifts</h4>
+                                <p>For each employee, select their <strong>starting shift</strong> from the dropdown:</p>
+                                <ul>
+                                    <li>This is the shift they work in <strong>Week 1</strong></li>
+                                    <li>They'll automatically rotate to the next shift each week</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="tutorial-subsection">
+                                <h4>📞 Step D: On-Call Rotation</h4>
+                                <p>One person is on-call each week:</p>
+                                <ul>
+                                    <li>Select who is on-call during <strong>Week 1</strong></li>
+                                    <li><strong>Drag to reorder</strong> the rotation sequence</li>
+                                    <li>On-call rotates through employees each week</li>
+                                </ul>
+                            </div>
+                            
+                            <p class="tip">💡 Click <strong>Save & Generate Schedule</strong> when done!</p>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>📤 Export & Print</h3>
+                            <p><strong>📊 Export Excel:</strong> Download the schedule as a spreadsheet file.</p>
+                            <p><strong>📄 Export PDF:</strong> Open a printable version you can save as PDF.</p>
+                            <p><strong>🖨️ Print:</strong> Opens the print dialog directly.</p>
+                            <p class="tip">💡 Filter to a specific week first to export just that week!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tutorial-footer">
+                    <p>🔒 Your data is saved locally in your browser. It won't be lost if you close the page!</p>
+                    <button id="closeTutorialBtn" class="btn btn-primary">Got it!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Wizard Modal (First Visit) -->
+        <div id="setupWizardModal" class="modal">
+            <div class="modal-content setup-wizard-modal">
+                <h2>🎉 Welcome! Let's Set Up Your Schedule</h2>
+                <p class="wizard-intro">This quick setup will help you configure your team's shift rotation. You can always change this later in ⚙️ Configure.</p>
+                
+                <!-- Step 1: Time Slots -->
+                <div id="wizardStep1" class="wizard-step active">
+                    <div class="wizard-progress">
+                        <span class="progress-dot active"></span>
+                        <span class="progress-dot"></span>
+                        <span class="progress-dot"></span>
+                        <span class="progress-dot"></span>
+                    </div>
+                    <h3>Step 1 of 4: Set Up Time Slots</h3>
+                    <p>What shift times does your team work? Add all the different time slots.</p>
+                    
+                    <div class="wizard-timeslots">
+                        <div id="wizardTimeslotList"></div>
+                        <div class="add-row">
+                            <input type="text" id="wizardNewTimeslot" placeholder="e.g., 9:00 AM - 5:00 PM" maxlength="50">
+                            <button id="wizardAddTimeslot" class="btn btn-small">+ Add</button>
+                        </div>
+                    </div>
+                    
+                    <p class="wizard-example">💡 Examples: "7:30 AM - 3:30 PM", "9:00 AM - 5:00 PM", "10:00 AM - 6:00 PM"</p>
+                    
+                    <div class="wizard-buttons">
+                        <button id="wizardNext1" class="btn btn-primary">Next: Add Employees →</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Employees -->
+                <div id="wizardStep2" class="wizard-step">
+                    <div class="wizard-progress">
+                        <span class="progress-dot completed">✓</span>
+                        <span class="progress-dot active"></span>
+                        <span class="progress-dot"></span>
+                        <span class="progress-dot"></span>
+                    </div>
+                    <h3>Step 2 of 4: Add Your Team Members</h3>
+                    <p>Enter the names of everyone who will be on the rotating schedule.</p>
+                    
+                    <div class="wizard-employees">
+                        <div id="wizardEmployeeList"></div>
+                        <div class="add-row">
+                            <input type="text" id="wizardNewEmployee" placeholder="Employee name" maxlength="50">
+                            <button id="wizardAddEmployee" class="btn btn-small">+ Add</button>
+                        </div>
+                    </div>
+                    
+                    <div class="wizard-buttons">
+                        <button id="wizardBack2" class="btn btn-secondary">← Back</button>
+                        <button id="wizardNext2" class="btn btn-primary">Next: Assign Shifts →</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Assignments -->
+                <div id="wizardStep3" class="wizard-step">
+                    <div class="wizard-progress">
+                        <span class="progress-dot completed">✓</span>
+                        <span class="progress-dot completed">✓</span>
+                        <span class="progress-dot active"></span>
+                        <span class="progress-dot"></span>
+                    </div>
+                    <h3>Step 3 of 4: Assign Week 1 Shifts</h3>
+                    <p>Select which shift each person works during <strong>Week 1</strong>. They'll rotate to the next shift each week automatically.</p>
+                    
+                    <div class="wizard-assignments" id="wizardAssignmentList"></div>
+                    
+                    <p class="wizard-example">💡 Each employee should start on a different shift so they rotate fairly!</p>
+                    
+                    <div class="wizard-buttons">
+                        <button id="wizardBack3" class="btn btn-secondary">← Back</button>
+                        <button id="wizardNext3" class="btn btn-primary">Next: On-Call Setup →</button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: On-Call -->
+                <div id="wizardStep4" class="wizard-step">
+                    <div class="wizard-progress">
+                        <span class="progress-dot completed">✓</span>
+                        <span class="progress-dot completed">✓</span>
+                        <span class="progress-dot completed">✓</span>
+                        <span class="progress-dot active"></span>
+                    </div>
+                    <h3>Step 4 of 4: Set Up On-Call Rotation</h3>
+                    <p>One person is on-call each week. Select who starts in <strong>Week 1</strong>.</p>
+                    
+                    <div class="wizard-oncall">
+                        <label>Who is on-call during Week 1?</label>
+                        <select id="wizardOnCallStart"></select>
+                    </div>
+                    
+                    <p class="wizard-example">💡 On-call rotates through all employees in the order they were added. You can reorder later in ⚙️ Configure.</p>
+                    
+                    <div class="wizard-buttons">
+                        <button id="wizardBack4" class="btn btn-secondary">← Back</button>
+                        <button id="wizardFinish" class="btn btn-primary btn-success">✓ Finish Setup</button>
+                    </div>
                 </div>
             </div>
         </div>

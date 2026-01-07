@@ -116,6 +116,16 @@ select:focus, input:focus {
     background: #c0392b;
 }
 
+.btn-tutorial {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.btn-tutorial:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+}
+
 /* Modal Styles */
 .modal {
     display: none;
@@ -138,6 +148,10 @@ select:focus, input:focus {
     max-width: 600px;
     position: relative;
     animation: slideIn 0.3s ease;
+}
+
+.modal-content.tutorial-modal {
+    max-width: 700px;
 }
 
 @keyframes slideIn {
@@ -374,6 +388,11 @@ select:focus, input:focus {
     background: #f8f9fa;
     border-radius: 8px;
     border-left: 4px solid;
+    flex-wrap: wrap;
+}
+
+.schedule-row.has-note {
+    background: linear-gradient(135deg, #fff9e6 0%, #f8f9fa 100%);
 }
 
 .schedule-row:nth-child(3n+1) { border-left-color: #667eea; }
@@ -391,6 +410,167 @@ select:focus, input:focus {
     background: white;
     padding: 5px 10px;
     border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.slot-note {
+    cursor: help;
+    font-size: 0.85rem;
+}
+
+.note-text {
+    width: 100%;
+    font-size: 0.8rem;
+    color: #856404;
+    background: #fff3cd;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+/* Timeslot Config with Notes */
+.config-item.timeslot-config {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.timeslot-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+.timeslot-time {
+    font-weight: 600;
+    color: #333;
+}
+
+.timeslot-note-row {
+    display: flex;
+    gap: 8px;
+}
+
+.timeslot-note-input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.timeslot-note-input:focus {
+    border-color: #667eea;
+    outline: none;
+}
+
+.config-item.timeslot-config > .btn-danger {
+    align-self: flex-end;
+}
+
+/* On-Call Badge */
+.on-call-badge {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* On-Call Config */
+.on-call-config {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.on-call-config select {
+    padding: 8px 12px;
+    border: 2px solid #667eea;
+    border-radius: 5px;
+    font-size: 1rem;
+    min-width: 150px;
+}
+
+.on-call-order-list {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.on-call-order-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    cursor: grab;
+    border: 1px solid #ddd;
+    transition: all 0.2s;
+}
+
+.on-call-order-item:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.on-call-order-item.dragging {
+    opacity: 0.5;
+    background: #e8e8ff;
+}
+
+.on-call-order-item .drag-handle {
+    color: #999;
+    font-size: 1.2rem;
+}
+
+.on-call-order-item .order-number {
+    background: #667eea;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.on-call-order-item .employee-name {
+    flex: 1;
+}
+
+/* Wizard On-Call */
+.wizard-oncall {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.wizard-oncall label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.wizard-oncall select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    font-size: 1rem;
 }
 
 footer {
@@ -465,6 +645,278 @@ footer {
 
 .btn-export:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+}
+
+/* Tutorial Modal Styles */
+.tutorial-modal h2 {
+    text-align: center;
+    color: #667eea;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+.tutorial-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tutorial-step {
+    display: flex;
+    gap: 15px;
+    background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.step-content p {
+    margin: 8px 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+.step-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.step-content li {
+    margin: 6px 0;
+    color: #555;
+    line-height: 1.4;
+}
+
+.step-content .tip {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-left: 3px solid #f5a623;
+    font-size: 0.9rem;
+    margin-top: 12px;
+}
+
+.tutorial-footer {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+    text-align: center;
+}
+
+.tutorial-footer p {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+}
+
+.tutorial-footer .btn {
+    padding: 12px 40px;
+    font-size: 1.1rem;
+}
+
+/* Tutorial subsections */
+.tutorial-subsection {
+    background: #f8f9ff;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin: 12px 0;
+    border-left: 3px solid #667eea;
+}
+
+.tutorial-subsection h4 {
+    margin: 0 0 8px 0;
+    color: #667eea;
+    font-size: 1rem;
+}
+
+.tutorial-subsection ul {
+    margin: 8px 0 0 0;
+}
+
+/* Setup Wizard Modal */
+.setup-wizard-modal {
+    max-width: 650px;
+}
+
+.setup-wizard-modal h2 {
+    text-align: center;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.wizard-intro {
+    text-align: center;
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+
+.wizard-step {
+    display: none;
+}
+
+.wizard-step.active {
+    display: block;
+}
+
+.wizard-progress {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.progress-dot {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #999;
+    transition: all 0.3s;
+}
+
+.progress-dot.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.progress-dot.completed {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.wizard-step h3 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.wizard-step > p {
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.wizard-timeslots,
+.wizard-employees {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+#wizardTimeslotList .wizard-item,
+#wizardEmployeeList .wizard-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+#wizardTimeslotList .wizard-item span,
+#wizardEmployeeList .wizard-item span {
+    font-weight: 500;
+    color: #333;
+}
+
+.wizard-assignments {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.wizard-assignment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.wizard-assignment-row .employee-name {
+    font-weight: 600;
+    color: #333;
+    min-width: 120px;
+}
+
+.wizard-assignment-row select {
+    padding: 8px 12px;
+    border: 2px solid #667eea;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    min-width: 180px;
+}
+
+.wizard-example {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+    padding: 12px 15px;
+    border-radius: 8px;
+    border-left: 3px solid #f5a623;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.wizard-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.wizard-buttons .btn {
+    padding: 12px 30px;
+    font-size: 1rem;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.btn-success:hover {
     box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
 }
 
